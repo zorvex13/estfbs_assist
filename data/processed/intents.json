@@ -1,0 +1,91 @@
+{
+    "intents": [
+        {
+            "tag": "reglement_stage_pfe",
+            "patterns": [
+                "Quelles sont les règles pour le stage de fin d'études ?",
+                "Comment valider le PFE ?",
+                "fo9ach nswwbo rapport de stage",
+                "wach stage darouri",
+                "معلومات على التدريب PFE",
+                "soutenance de stage"
+            ],
+            "responses": [
+                "Le cursus à l'EST FBS inclut des stages obligatoires : un stage d'initiation de 4 semaines (entre S2 et S3) et un stage technique de 8 semaines (durant le S4). Le Projet de Fin d'Études (PFE) est considéré comme un module à part entière et doit obligatoirement se clôturer par la remise d'un rapport écrit et une soutenance devant un jury."            ]
+        },
+        {
+            "tag": "compensation_semestre",
+            "patterns": [
+                "Comment fonctionne la compensation entre les semestres ?",
+                "Est-ce que je peux compenser un module ?",
+                "wach kayn compensation f EST ?",
+                "kifach ncompenser les notes"
+            ],
+            "responses": [
+                "Un module avec une note inférieure à 10/20 peut être validé par compensation si votre moyenne générale (du semestre ou de l'année) est supérieure ou égale à 10/20. Cependant, la note de ce module ne doit pas être inférieure à 7/20, et aucune note d'élément du module ne doit être inférieure à 5/20 (note éliminatoire)."            ]
+        },
+        {
+            "tag": "session_rattrapage",
+            "patterns": [
+                "Qui a le droit de passer le rattrapage ?",
+                "Comment passer la session de rattrapage ?",
+                "fo9ach rattrapage",
+                "chkoune li kaydwz rattrapage"
+            ],
+            "responses": [
+"Pour avoir le droit de passer le rattrapage d'un module, il faut avoir une note comprise entre 7/20 et moins de 10/20. Attention : Selon le règlement, la note finale après une épreuve de rattrapage ne peut en aucun cas dépasser 10/20."            ]
+        },
+        {
+            "tag": "contact_administration",
+            "patterns": [
+                "Quel est le numéro de l'école ?",
+                "Comment contacter l'administration ?",
+                "رقم هاتف الإدارة",
+                "numéro de téléphone EST",
+                "fin jat l'administration"
+            ],
+            "responses": [
+                "École Supérieure de Technologie, Hay Tighnari, Route Nationale N° 11, 23200 Fkih Ben Saleh Fax : (+212) 05 23 48 13 51, Tél."
+            ]
+        },
+        {
+            "tag": "reglement_absence",
+            "patterns": [
+                "Quelles sont les règles d'absence ?",
+                "Comment justifier une absence ?",
+                "شنو القوانين ديال الغياب؟",
+                "wach n9der njustifier absence",
+                "ch7al mn nhar bach njustifier",
+                "j'étais malade"
+            ],
+            "responses": [
+                "Toutefois, un certificat médical ne peut être pris en considération que s'il est muni d’ordonnance analyses … Les absences non justifiées accumulées au cours d’un semestre seront sanctionnées comme suit :  06 heures : 1er avertissement  12 heures : 2ème avertissement  16 heures : blâme  20 heures : traduction devant le conseil de discipline constitué conformément aux textes en vigueur (Dispositions prévues par le décret N° 2.06.619 du 28 octobre 2008, relatif au conseil de discipline concernant les étudiants) Tout retard aux séances de l'emploi du temps sera considéré comme absence à la séance."
+            ]
+        },
+        {
+            "tag": "sanction_absence_examen",
+            "patterns": [
+                "Est-ce que j'aurai 0 si je suis absent à l'examen ?",
+                "Que se passe-t-il si je rate un DS ?",
+                "شنو يوقع يلا غبت ف الامتحان؟",
+                "wach radi nakhod 0 f ds"
+            ],
+            "responses": [
+                "Toute absence à une séance de contrôle des connaissances (DS, examen, TP) sera sanctionnée par la note 00/20, qu'elle soit justifiée ou non."
+            ]
+        },
+        {
+            "tag": "salutation",
+            "patterns": [
+                "salam",
+                "bonjour",
+                "hello",
+                "wach",
+                "السلام"
+            ],
+            "responses": [
+                "Bonjour! Je suis le chatbot de l'EST FBS. Posez-moi vos questions sur le règlement ou les études."
+            ]
+        }
+    ]
+}
