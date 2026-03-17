@@ -7,7 +7,7 @@ __pycache__/
 .env
 .chainlit/
 
-# Base de données et dossiers de données (trop lourds pour GitHub)
+# DB et dossiers de données (trop lourds pour GitHub)
 *.db
 data/
 models/
