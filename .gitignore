@@ -1,3 +1,14 @@
+# Environnement virtuel
 venv/
-.env
 __pycache__/
+*.pyc
+
+# Secrets et config
+.env
+.chainlit/
+
+# Base de données et dossiers de données (trop lourds pour GitHub)
+*.db
+data/
+models/
+notebooks/
