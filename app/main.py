@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
@@ -25,12 +27,29 @@ from app.database import init_db, log_interaction  # noqa: E402
 
 load_dotenv()
 
-app = FastAPI(title="Chatbot EST FBS")
 rag_service: RAGService | None = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """Initialize database and RAG dependencies once at application startup."""
+    global rag_service
+
+    init_db()
+    try:
+        rag_service = create_rag_service()
+        print("RAG service is ready.")
+    except Exception as exc:
+        rag_service = None
+        raise RuntimeError(f"Failed to initialize RAG service: {exc}") from exc
+    yield
+
+
+app = FastAPI(title="Chatbot EST FBS", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -42,20 +61,6 @@ class Question(BaseModel):
 
     text: str = Field(..., min_length=1)
     history: list[dict[str, Any]] = Field(default_factory=list)
-
-
-@app.on_event("startup")
-def startup() -> None:
-    """Initialize database and RAG dependencies once at application startup."""
-    global rag_service
-
-    init_db()
-    try:
-        rag_service = create_rag_service()
-        print("RAG service is ready.")
-    except Exception as exc:
-        rag_service = None
-        raise RuntimeError(f"Failed to initialize RAG service: {exc}") from exc
 
 
 @app.post("/ask")

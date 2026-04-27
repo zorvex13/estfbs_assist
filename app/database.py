@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Any
 
 from dotenv import load_dotenv
-from sqlalchemy import Column, Integer, Text, create_engine
+from sqlalchemy import Column, DateTime, Integer, Text, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 load_dotenv()
@@ -47,7 +47,7 @@ class ChatLog(Base):
     __tablename__ = "chat_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    timestamp = Column(Text, default=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    timestamp = Column(DateTime, default=datetime.utcnow)
     question = Column(Text)
     reponse = Column(Text)
     sources = Column(Text)

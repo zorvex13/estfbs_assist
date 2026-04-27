@@ -1,5 +1,6 @@
 """Load local school documents into Pinecone using the project embedding model."""
 
+import hashlib
 import os
 from pathlib import Path
 
@@ -52,13 +53,32 @@ def store_hybrid_data() -> None:
     index = pinecone.Index(require_env("PINECONE_INDEX_NAME"))
 
     print(f"Vectorizing {len(all_chunks)} chunks with {EMBEDDING_MODEL}...")
-    for i, chunk in enumerate(all_chunks):
-        vector = embeddings.embed_query(chunk.page_content)
+    chunk_texts = [chunk.page_content for chunk in all_chunks]
+    vectors = embeddings.embed_documents(chunk_texts)
+    records = []
+    for chunk, vector in zip(all_chunks, vectors):
         metadata = {
             "text": chunk.page_content,
             "source": chunk.metadata.get("source", "Unknown"),
         }
-        index.upsert(vectors=[(f"doc_{i}", vector, metadata)])
+        records.append(
+            (hashlib.md5(chunk.page_content.encode()).hexdigest(), vector, metadata)
+        )
+
+    uploaded = 0
+    for start in range(0, len(records), 100):
+        batch = records[start : start + 100]
+        index.upsert(vectors=batch)
+        previous_uploaded = uploaded
+        uploaded += len(batch)
+        for progress in range(
+            ((previous_uploaded // 50) + 1) * 50,
+            uploaded + 1,
+            50,
+        ):
+            print(f"Uploaded {progress}/{len(records)} chunks...")
+        if uploaded == len(records) and uploaded % 50:
+            print(f"Uploaded {uploaded}/{len(records)} chunks...")
 
     print("All documents were uploaded to Pinecone.")
 

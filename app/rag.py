@@ -50,7 +50,11 @@ class RAGService:
         self.retriever = self.vector_store.as_retriever(
             search_kwargs={"k": retrieval_k},
         )
-        self.llm = ChatGoogleGenerativeAI(model=llm_model, temperature=temperature)
+        self.llm = ChatGoogleGenerativeAI(
+            model=llm_model,
+            temperature=temperature,
+            request_timeout=30,
+        )
         self.prompt = ChatPromptTemplate.from_template(
             """Tu es l'assistant virtuel officiel de l'EST Fquih Ben Salah (EST FBS).
 Ton rôle est d'aider les étudiants en répondant à leurs questions.
@@ -122,8 +126,12 @@ Réponse:"""
 def create_rag_service() -> RAGService:
     """Create the RAG service from environment variables."""
     load_dotenv()
+    index_name = os.getenv("PINECONE_INDEX_NAME")
+    if not index_name:
+        raise RuntimeError("Missing required environment variable: PINECONE_INDEX_NAME")
+
     return RAGService(
-        index_name=os.getenv("PINECONE_INDEX_NAME", ""),
+        index_name=index_name,
         embedding_model=os.getenv("EMBEDDING_MODEL", EMBEDDING_MODEL),
         llm_model=os.getenv("GEMINI_MODEL", DEFAULT_LLM_MODEL),
     )

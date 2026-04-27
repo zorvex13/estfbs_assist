@@ -30,8 +30,13 @@ def lancer_chatbot() -> None:
             continue
 
         print("Bot is reading the documents...")
-        result = rag_service.ask(question, history)
+        try:
+            result = rag_service.ask(question, history)
+        except Exception:
+            print("Something went wrong, please try again.")
+            continue
         history.append({"user": question, "bot": result.answer})
+        history = history[-10:]
 
         print(f"\nEST FBS Bot : {result.answer}")
         if result.sources:
