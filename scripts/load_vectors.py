@@ -12,8 +12,8 @@ from pinecone import Pinecone
 
 
 EMBEDDING_MODEL = "models/gemini-embedding-001"
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+RAW_DATA_PATH = PROJECT_ROOT / "data"
 
 
 def require_env(name: str) -> str:

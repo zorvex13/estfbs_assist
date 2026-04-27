@@ -1,6 +1,6 @@
 # estfbs-assist
 
-RAG-based chatbot backend for EST Fquih Ben Salah, built with FastAPI, LangChain, Gemini, Pinecone, and Supabase.
+RAG-based chatbot backend for EST Fquih Ben Salah, built with FastAPI, LangChain, Groq, Gemini Embeddings, Pinecone, and Supabase.
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688)
@@ -21,7 +21,7 @@ Pinecone vector index
 POST /ask
         |
         v
-Gemini 2.5 Flash
+Groq + Llama 3.3 70B
         |
         v
 Supabase logging
@@ -32,10 +32,21 @@ JSON response
 
 ## Prerequisites
 
-- Google AI Studio account with a Gemini API key
+- Groq console account at https://console.groq.com (free, no credit card)
+- Google AI Studio API key for Gemini Embeddings
 - Pinecone account with a free-tier index
 - Supabase project with a PostgreSQL database
 - Python 3.11+
+
+## Tech Stack
+
+- Python 3.11+
+- FastAPI
+- LangChain
+- Groq (Llama 3.3 70B)
+- Gemini Embeddings
+- Pinecone
+- Supabase PostgreSQL via SQLAlchemy
 
 ## Installation
 
@@ -58,10 +69,12 @@ venv\Scripts\activate
 Create a `.env` file in the project root:
 
 ```env
-GOOGLE_API_KEY=your_google_ai_studio_api_key
-PINECONE_API_KEY=your_pinecone_api_key
-PINECONE_INDEX_NAME=your_pinecone_index_name
-DATABASE_URL=your_supabase_postgres_connection_string
+GOOGLE_API_KEY=your_google_ai_studio_api_key_here
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=llama-3.3-70b-versatile
+PINECONE_API_KEY=your_pinecone_api_key_here
+PINECONE_INDEX_NAME=your_pinecone_index_name_here
+DATABASE_URL=your_supabase_postgres_connection_string_here
 ```
 
 ## Usage
@@ -116,7 +129,7 @@ Response:
 ```text
 app/
   main.py          FastAPI server and /ask endpoint
-  rag.py           RAG pipeline using Pinecone and Gemini
+  rag.py           RAG pipeline using Pinecone, Groq, and Gemini Embeddings
   database.py      Supabase logging via SQLAlchemy
 data/
   *.pdf / *.txt    School documents used as the knowledge base
@@ -126,7 +139,3 @@ scripts/
 requirements.txt   Python dependencies
 .env               Local environment variables, not committed
 ```
-
-## License
-
-MIT

@@ -10,12 +10,13 @@ from typing import Any
 from dotenv import load_dotenv
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_groq import ChatGroq
 from langchain_pinecone import PineconeVectorStore
 
 
 EMBEDDING_MODEL = "models/gemini-embedding-001"
-DEFAULT_LLM_MODEL = "gemini-2.5-flash"
+DEFAULT_LLM_MODEL = "llama-3.3-70b-versatile"
 DEFAULT_RETRIEVAL_K = 3
 
 
@@ -50,7 +51,7 @@ class RAGService:
         self.retriever = self.vector_store.as_retriever(
             search_kwargs={"k": retrieval_k},
         )
-        self.llm = ChatGoogleGenerativeAI(
+        self.llm = ChatGroq(
             model=llm_model,
             temperature=temperature,
             request_timeout=30,
@@ -133,5 +134,5 @@ def create_rag_service() -> RAGService:
     return RAGService(
         index_name=index_name,
         embedding_model=os.getenv("EMBEDDING_MODEL", EMBEDDING_MODEL),
-        llm_model=os.getenv("GEMINI_MODEL", DEFAULT_LLM_MODEL),
+        llm_model=os.getenv("GROQ_MODEL", DEFAULT_LLM_MODEL),
     )
