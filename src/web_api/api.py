@@ -1,87 +1,79 @@
-import os
-import uvicorn
-from fastapi import FastAPI
-from pydantic import BaseModel
-from dotenv import load_dotenv
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain_pinecone import PineconeVectorStore
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough
-from langchain_core.output_parsers import StrOutputParser
+"""FastAPI entrypoint for the EST FBS RAG chatbot."""
 
-# 1. Charger les clés secrètes
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+from typing import Any
+
+import uvicorn
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+
+SRC_DIR = Path(__file__).resolve().parents[1]
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+WEB_API_DIR = Path(__file__).resolve().parent
+if str(WEB_API_DIR) not in sys.path:
+    sys.path.insert(0, str(WEB_API_DIR))
+
+from rag_chain import RAGService, create_rag_service  # noqa: E402
+from database import init_db, log_interaction  # noqa: E402
+
+
 load_dotenv()
 
-# 2. Initialiser l'application Web (API)
-app = FastAPI(
-    title="API Chatbot EST FBS",
-    description="Le moteur RAG du PFE, accessible via requêtes HTTP.",
-    version="1.0"
+app = FastAPI(title="Chatbot EST FBS")
+rag_service: RAGService | None = None
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# 3. Définir le format de la question (Ce que le Frontend va envoyer)
+
 class Question(BaseModel):
-    text: str
+    """Incoming question payload from Chainlit."""
 
-# 4. Préparer le Cerveau IA (Chargé une seule fois au démarrage du serveur)
-print("⏳ Démarrage du moteur IA LangChain...")
-embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
-index_name = os.getenv("PINECONE_INDEX_NAME")
-vector_store = PineconeVectorStore(index_name=index_name, embedding=embeddings)
-retriever = vector_store.as_retriever(search_kwargs={"k": 3})
+    text: str = Field(..., min_length=1)
+    history: list[dict[str, Any]] = Field(default_factory=list)
 
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.3)
 
-template = """Tu es l'assistant virtuel officiel de l'EST Fquih Ben Salah (EST FBS).
-Ton rôle est d'aider les étudiants en répondant à leurs questions.
-Utilise UNIQUEMENT le contexte fourni ci-dessous pour répondre.
-Si la réponse ne s'y trouve pas, dis poliment que tu ne sais pas.
+@app.on_event("startup")
+def startup() -> None:
+    """Initialize database and RAG dependencies once at application startup."""
+    global rag_service
 
-Contexte :
-{context}
+    init_db()
+    try:
+        rag_service = create_rag_service()
+        print("RAG service is ready.")
+    except Exception as exc:
+        rag_service = None
+        raise RuntimeError(f"Failed to initialize RAG service: {exc}") from exc
 
-Question : {question}
-Réponse :"""
-
-prompt = ChatPromptTemplate.from_template(template)
-
-def format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
-
-rag_chain = (
-    {"context": retriever | format_docs, "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
-)
-print("✅ Moteur IA prêt et connecté à Pinecone !")
-
-# ==========================================================
-# 5. LES ROUTES DE L'API (Les portes d'entrée du serveur)
-# ==========================================================
-
-@app.get("/")
-def home():
-    return {"message": "Bienvenue sur l'API du Chatbot EST FBS. Le serveur est en ligne."}
 
 @app.post("/ask")
-def poser_question(q: Question):
-    print(f"📥 Nouvelle question reçue depuis le site web : {q.text}")
-    
-    # A. Chercher les documents sources
-    sources_docs = retriever.invoke(q.text)
-    noms_sources = list(set([os.path.basename(doc.metadata.get('source', 'Inconnue')) for doc in sources_docs]))
-    
-    # B. Générer la réponse avec l'IA
-    reponse_ia = rag_chain.invoke(q.text)
-    
-    # C. Renvoyer le paquet propre (JSON) au site web
-    return {
-        "reponse": reponse_ia,
-        "sources": noms_sources
-    }
+def poser_question(q: Question) -> dict[str, Any]:
+    """Answer a student question and log the interaction."""
+    if rag_service is None:
+        raise HTTPException(status_code=503, detail="RAG service is not initialized.")
 
-# 6. Lancement du serveur
+    try:
+        result = rag_service.ask(q.text, q.history)
+        log_interaction(q.text, result.answer, result.sources)
+        return {"reponse": result.answer, "sources": result.sources}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        print(f"RAG request failed: {exc}")
+        raise HTTPException(status_code=500, detail="AI service failed to answer.") from exc
+
+
 if __name__ == "__main__":
-    print("🚀 Lancement du serveur web sur le port 8000...")
     uvicorn.run(app, host="0.0.0.0", port=8000)
