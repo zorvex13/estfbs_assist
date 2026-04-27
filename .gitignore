@@ -7,8 +7,7 @@ __pycache__/
 # Secrets et config
 .env
 
-# DB et dossiers de données (trop lourds pour GitHub)
+# DB et artefacts lourds
 *.db
-data/
 models/
 notebooks/
