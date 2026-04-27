@@ -9,7 +9,7 @@ SRC_DIR = Path(__file__).resolve().parents[1]
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from rag_chain import create_rag_service  # noqa: E402
+from app.rag import create_rag_service  # noqa: E402
 
 
 def lancer_chatbot() -> None:

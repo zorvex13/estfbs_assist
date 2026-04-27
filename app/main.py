@@ -19,8 +19,8 @@ WEB_API_DIR = Path(__file__).resolve().parent
 if str(WEB_API_DIR) not in sys.path:
     sys.path.insert(0, str(WEB_API_DIR))
 
-from rag_chain import RAGService, create_rag_service  # noqa: E402
-from database import init_db, log_interaction  # noqa: E402
+from app.rag import RAGService, create_rag_service  # noqa: E402
+from app.database import init_db, log_interaction  # noqa: E402
 
 
 load_dotenv()
