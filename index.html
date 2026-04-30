@@ -1,0 +1,1171 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assistant EST FBS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #040f32;
+      --bg2: #051340;
+      --ink: #01081f;
+      --paper: #ffffff;
+      --glass: rgba(255, 255, 255, 0.1);
+      --glass2: rgba(255, 255, 255, 0.16);
+      --glass3: rgba(255, 255, 255, 0.24);
+      --line: rgba(255, 255, 255, 0.16);
+      --line2: rgba(255, 255, 255, 0.3);
+      --blue: #4776E6;
+      --blue2: #5483f0;
+      --violet: #8E54E9;
+      --violet2: #9a65f3;
+      --cyan: #49c7ea;
+      --gold: #d6ad32;
+      --green: #44d17a;
+      --red: #ff3e7f;
+      --text: #ffffff;
+      --text2: #dbe3f4;
+      --text3: #94a0bd;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+      --button: linear-gradient(135deg, #4776E6, #8E54E9);
+      --button-hover: linear-gradient(135deg, #5483f0, #9a65f3);
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at 46% 42%, #061a59 0%, var(--bg2) 34%, var(--bg) 100%);
+      color: var(--text);
+      font-family: var(--sans);
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .app {
+      display: grid;
+      grid-template-rows: 74px minmax(0, 1fr);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .masthead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 12px clamp(16px, 4vw, 42px);
+      border-bottom: 1px solid var(--line);
+      background: rgba(1, 8, 31, 0.48);
+      backdrop-filter: blur(18px);
+    }
+
+    .identity {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      gap: 13px;
+    }
+
+    .school-logo {
+      display: grid;
+      flex: 0 0 auto;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 12px;
+      background: var(--paper);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .school-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 3px;
+    }
+
+    .identity-text {
+      min-width: 0;
+    }
+
+    .eyebrow {
+      color: var(--cyan);
+      font: 700 10px/1.2 var(--mono);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .identity h1 {
+      margin: 3px 0 0;
+      overflow: hidden;
+      color: var(--text);
+      font-size: clamp(19px, 3vw, 25px);
+      font-weight: 700;
+      line-height: 1.05;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      flex: 0 0 auto;
+      gap: 10px;
+    }
+
+    .status-pill,
+    .metric-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      gap: 8px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text2);
+      font: 700 10px/1 var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--red);
+      box-shadow: 0 0 0 3px rgba(255, 62, 127, 0.14);
+    }
+
+    .status-pill[data-online="true"] .status-dot {
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(68, 209, 122, 0.15);
+    }
+
+    .metric-pill strong {
+      color: var(--paper);
+      font-weight: 700;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+      min-height: 0;
+      gap: clamp(16px, 3vw, 28px);
+      padding: clamp(14px, 3vw, 30px);
+      overflow: hidden;
+    }
+
+    .campus-card,
+    .chat-card {
+      min-height: 0;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.09);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .campus-card {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-radius: 22px;
+    }
+
+    .campus-hero {
+      padding: 22px 18px 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
+      text-align: center;
+    }
+
+    .hero-logo {
+      display: grid;
+      width: 130px;
+      height: 112px;
+      margin: 0 auto 14px;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.58);
+      border-radius: 18px;
+      background: var(--paper);
+    }
+
+    .hero-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 7px;
+    }
+
+    .campus-hero h2 {
+      margin: 0;
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.18;
+    }
+
+    .campus-hero p {
+      margin: 8px 0 0;
+      color: var(--text2);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .guide-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 14px;
+      scrollbar-color: var(--line2) transparent;
+    }
+
+    .guide-group {
+      margin-bottom: 18px;
+    }
+
+    .guide-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .guide-label {
+      margin: 0 4px 8px;
+      color: var(--text3);
+      font: 700 10px/1 var(--mono);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .guide-btn {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: 10px;
+      min-height: 48px;
+      margin-bottom: 7px;
+      padding: 9px 10px;
+      border: 1px solid transparent;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      text-align: left;
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+    }
+
+    .guide-btn:hover {
+      border-color: var(--line2);
+      background: rgba(255, 255, 255, 0.13);
+      transform: translateY(-1px);
+    }
+
+    .guide-icon {
+      display: grid;
+      flex: 0 0 30px;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--item-color, var(--blue));
+      color: #fff;
+    }
+
+    .guide-btn span:last-child {
+      overflow: hidden;
+      font-size: 13px;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .campus-footer {
+      display: grid;
+      gap: 8px;
+      padding: 14px 16px 16px;
+      border-top: 1px solid var(--line);
+      color: var(--text2);
+      font: 600 11px/1.2 var(--mono);
+    }
+
+    .campus-footer div {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .campus-footer strong {
+      overflow: hidden;
+      color: var(--paper);
+      font-weight: 700;
+      text-align: right;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chat-card {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      overflow: hidden;
+      border-radius: 28px;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(1, 8, 31, 0.32);
+    }
+
+    .assistant-title {
+      min-width: 0;
+    }
+
+    .assistant-title h2 {
+      margin: 0;
+      color: var(--paper);
+      font-size: clamp(21px, 3vw, 30px);
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1.1;
+    }
+
+    .assistant-title p {
+      margin: 6px 0 0;
+      color: var(--text2);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .language-stack {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .language-stack span {
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text2);
+      font: 700 10px/1 var(--mono);
+    }
+
+    .conversation {
+      position: relative;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 24px;
+      scrollbar-color: var(--line2) transparent;
+    }
+
+    .welcome {
+      display: grid;
+      min-height: 100%;
+      align-content: center;
+      justify-items: center;
+      gap: 22px;
+      padding: 12px 0;
+      text-align: center;
+      animation: fadeUp 0.24s ease both;
+    }
+
+    .welcome-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(73, 199, 234, 0.5);
+      border-radius: 999px;
+      background: rgba(73, 199, 234, 0.12);
+      color: var(--cyan);
+      font: 700 10px/1 var(--mono);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .welcome h3 {
+      max-width: 680px;
+      margin: 0;
+      color: var(--paper);
+      font-size: clamp(34px, 6vw, 62px);
+      font-weight: 700;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .welcome p {
+      max-width: 620px;
+      margin: -8px 0 0;
+      color: var(--text2);
+      font-size: 17px;
+      line-height: 1.55;
+    }
+
+    .prompt-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: min(760px, 100%);
+      gap: 12px;
+    }
+
+    .prompt-card {
+      min-height: 104px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      text-align: left;
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+    }
+
+    .prompt-card:hover {
+      border-color: var(--line2);
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .prompt-card small {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--card-color, var(--cyan));
+      font: 700 10px/1 var(--mono);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .prompt-card strong {
+      display: block;
+      color: var(--paper);
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .message {
+      display: flex;
+      align-items: flex-start;
+      width: min(820px, 100%);
+      gap: 12px;
+      margin-bottom: 18px;
+      animation: fadeUp 0.18s ease both;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+      margin-left: auto;
+    }
+
+    .avatar {
+      display: grid;
+      flex: 0 0 38px;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border-radius: 13px;
+      color: #fff;
+      font: 700 10px/1 var(--mono);
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
+    }
+
+    .user .avatar {
+      background: var(--button);
+    }
+
+    .bot .avatar {
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      background: #fff;
+    }
+
+    .bot .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 3px;
+    }
+
+    .message-body {
+      display: grid;
+      max-width: min(690px, calc(100% - 50px));
+      gap: 8px;
+    }
+
+    .user .message-body {
+      justify-items: end;
+    }
+
+    .bubble {
+      padding: 13px 15px;
+      border-radius: 18px;
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.58;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .user .bubble {
+      border-top-right-radius: 6px;
+      background: var(--button);
+    }
+
+    .bot .bubble {
+      border: 1px solid var(--line);
+      border-top-left-radius: 6px;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .sources {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .source-chip {
+      max-width: 260px;
+      overflow: hidden;
+      padding: 5px 8px;
+      border: 1px solid rgba(73, 199, 234, 0.36);
+      border-radius: 999px;
+      background: rgba(73, 199, 234, 0.1);
+      color: var(--cyan);
+      font: 700 10px/1.2 var(--mono);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .typing {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 68px;
+      min-height: 46px;
+    }
+
+    .typing-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--cyan);
+      animation: pulse 0.9s ease-in-out infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.13s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.26s;
+    }
+
+    .composer {
+      padding: 16px 20px 20px;
+      border-top: 1px solid var(--line);
+      background: rgba(1, 8, 31, 0.34);
+    }
+
+    .composer-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 48px;
+      align-items: end;
+      width: min(900px, 100%);
+      gap: 10px;
+      margin: 0 auto;
+      padding: 8px;
+      border: 1px solid var(--line2);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.22);
+    }
+
+    .composer textarea {
+      min-height: 44px;
+      max-height: 120px;
+      padding: 11px 12px;
+      resize: none;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--paper);
+      font-size: 15px;
+      line-height: 1.45;
+      scrollbar-color: var(--line2) transparent;
+    }
+
+    .composer textarea::placeholder {
+      color: var(--text3);
+    }
+
+    .send-btn {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      overflow: hidden;
+      border-radius: 16px;
+      background: var(--button);
+      color: #fff;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .send-btn:not(:disabled):hover {
+      background: var(--button-hover);
+      transform: translateY(-1px);
+    }
+
+    .send-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        opacity: 0.35;
+        transform: scale(0.8);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.08);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .workspace {
+        grid-template-columns: minmax(0, 1fr);
+        overflow-y: auto;
+      }
+
+      .campus-card {
+        min-height: auto;
+      }
+
+      .guide-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        overflow: visible;
+      }
+
+      .guide-group {
+        margin-bottom: 0;
+      }
+
+      .chat-card {
+        min-height: 720px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+
+      .masthead {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .top-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .workspace {
+        padding: 12px;
+      }
+
+      .guide-list,
+      .prompt-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chat-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .language-stack {
+        justify-content: flex-start;
+      }
+
+      .conversation {
+        padding: 16px;
+      }
+
+      .welcome h3 {
+        font-size: 36px;
+      }
+
+      .bubble {
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 460px) {
+      .identity h1 {
+        white-space: normal;
+      }
+
+      .metric-pill {
+        display: none;
+      }
+
+      .campus-hero {
+        display: none;
+      }
+
+      .composer {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="masthead">
+      <div class="identity">
+        <div class="school-logo" aria-hidden="true">
+          <img src="https://cursus-estfbs.usms.ac.ma/LogoEST.PNG" alt="">
+        </div>
+        <div class="identity-text">
+          <div class="eyebrow">École Supérieure de Technologie</div>
+          <h1>Assistant EST FBS</h1>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <div class="status-pill" id="status" data-online="false">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="statusText">hors ligne</span>
+        </div>
+        <div class="metric-pill">
+          segments <strong id="chunkInfo">--</strong>
+        </div>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="campus-card" aria-label="Guide EST FBS">
+        <section class="campus-hero">
+          <div class="hero-logo" aria-hidden="true">
+            <img src="https://cursus-estfbs.usms.ac.ma/LogoEST.PNG" alt="">
+          </div>
+          <h2>Guide du campus de Fquih Ben Salah</h2>
+          <p>Les réponses sont générées à partir des documents de l'école indexés dans l'assistant.</p>
+        </section>
+
+        <div class="guide-list">
+          <section class="guide-group">
+            <h3 class="guide-label">Admissions</h3>
+            <button class="guide-btn" type="button" data-ask="Quelles sont les conditions d'admission à l'EST FBS ?" style="--item-color: var(--blue);">
+              <span class="guide-icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 19.5V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-1.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M8 7h7M8 11h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span>Conditions d'admission</span>
+            </button>
+            <button class="guide-btn" type="button" data-ask="Quels documents sont nécessaires pour l'inscription à l'EST FBS ?" style="--item-color: var(--green);">
+              <span class="guide-icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M7 3h7l4 4v14H7V3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M14 3v5h5M9.5 14h5M9.5 17h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span>Dossier d'inscription</span>
+            </button>
+          </section>
+
+          <section class="guide-group">
+            <h3 class="guide-label">Formations</h3>
+            <button class="guide-btn" type="button" data-ask="Quelles formations et quels diplômes propose l'EST FBS ?" style="--item-color: var(--violet);">
+              <span class="guide-icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="m4 7.5 8-4.5 8 4.5-8 4.5-8-4.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M6.5 10.5v4c0 1.8 2.5 3.5 5.5 3.5s5.5-1.7 5.5-3.5v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span>Diplômes et filières</span>
+            </button>
+            <button class="guide-btn" type="button" data-ask="Résume les principaux modules du programme DUT." style="--item-color: var(--cyan);">
+              <span class="guide-icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 5h14M5 12h14M5 19h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span>Programme DUT</span>
+            </button>
+          </section>
+
+          <section class="guide-group">
+            <h3 class="guide-label">Campus</h3>
+            <button class="guide-btn" type="button" data-ask="Que doit savoir un nouvel étudiant avant de rejoindre l'EST FBS ?" style="--item-color: var(--gold);">
+              <span class="guide-icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M12 10.5h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span>Guide nouvel étudiant</span>
+            </button>
+            <button class="guide-btn" type="button" data-ask="Où se trouve l'EST Fquih Ben Salah ?" style="--item-color: var(--red);">
+              <span class="guide-icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 18 3 21V6l6-3 6 3 6-3v15l-6 3-6-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M9 3v15M15 6v15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span>Localisation de l'école</span>
+            </button>
+          </section>
+        </div>
+
+        <footer class="campus-footer">
+          <div><span>modèle</span><strong id="modelInfo">RAG</strong></div>
+          <div><span>api</span><strong id="apiInfo">serveur local</strong></div>
+        </footer>
+      </aside>
+
+      <section class="chat-card" aria-label="Discussion avec l'assistant EST FBS">
+        <header class="chat-header">
+          <div class="assistant-title">
+            <h2>Posez vos questions à l'assistant EST FBS</h2>
+            <p>Obtenez des réponses précises sur les formations, l'inscription, les modules et les informations du campus.</p>
+          </div>
+          <div class="language-stack" aria-label="Langues prises en charge">
+            <span>FR</span>
+            <span>EN</span>
+            <span>AR</span>
+          </div>
+        </header>
+
+        <div class="conversation" id="messages" aria-live="polite">
+          <section class="welcome" id="welcome">
+            <div class="welcome-badge">assistant des documents officiels</div>
+            <h3>Vos questions sur l'EST FBS, avec des réponses claires.</h3>
+            <p>Choisissez un point de départ ou posez directement votre question. L'assistant cite les sources indexées lorsqu'elles sont disponibles.</p>
+
+            <div class="prompt-grid" aria-label="Questions suggérées">
+              <button class="prompt-card" type="button" data-ask="Quelles formations et quels diplômes propose l'EST FBS ?" style="--card-color: var(--violet);">
+                <small>Formations</small>
+                <strong>Quelles formations et quels diplômes propose l'EST FBS ?</strong>
+              </button>
+              <button class="prompt-card" type="button" data-ask="Quelles sont les conditions d'admission à l'EST FBS ?" style="--card-color: var(--cyan);">
+                <small>Admissions</small>
+                <strong>Quelles sont les conditions d'admission ?</strong>
+              </button>
+              <button class="prompt-card" type="button" data-ask="Résume le programme DUT à partir des documents indexés." style="--card-color: var(--gold);">
+                <small>Programme</small>
+                <strong>Résume le programme DUT.</strong>
+              </button>
+              <button class="prompt-card" type="button" data-ask="Que doit savoir un nouvel étudiant avant de rejoindre l'EST FBS ?" style="--card-color: var(--green);">
+                <small>Vie étudiante</small>
+                <strong>Que doit savoir un nouvel étudiant ?</strong>
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <form class="composer" id="chatForm">
+          <div class="composer-shell">
+            <textarea id="questionInput" rows="1" placeholder="Posez une question sur l'EST FBS..." autocomplete="off"></textarea>
+            <button class="send-btn" id="sendButton" type="submit" aria-label="Envoyer le message">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M5 12h13.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                <path d="m13 6 6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const API = '';
+    const EST_LOGO = 'https://cursus-estfbs.usms.ac.ma/LogoEST.PNG';
+
+    const state = {
+      waiting: false,
+      history: [],
+      typingNode: null,
+    };
+
+    const els = {
+      status: document.getElementById('status'),
+      statusText: document.getElementById('statusText'),
+      modelInfo: document.getElementById('modelInfo'),
+      apiInfo: document.getElementById('apiInfo'),
+      chunkInfo: document.getElementById('chunkInfo'),
+      messages: document.getElementById('messages'),
+      welcome: document.getElementById('welcome'),
+      form: document.getElementById('chatForm'),
+      input: document.getElementById('questionInput'),
+      send: document.getElementById('sendButton'),
+    };
+
+    function endpoint(path) {
+      return `${API}${path}`;
+    }
+
+    function setOnline(isOnline) {
+      els.status.dataset.online = String(isOnline);
+      els.statusText.textContent = isOnline ? 'en ligne' : 'hors ligne';
+    }
+
+    function updateSendState() {
+      els.send.disabled = state.waiting || !els.input.value.trim();
+    }
+
+    function autoResizeInput() {
+      els.input.style.height = 'auto';
+      els.input.style.height = `${Math.min(els.input.scrollHeight, 120)}px`;
+    }
+
+    function scrollToBottom() {
+      els.messages.scrollTop = els.messages.scrollHeight;
+    }
+
+    function hideWelcome() {
+      if (els.welcome) {
+        els.welcome.remove();
+        els.welcome = null;
+      }
+    }
+
+    function escapeText(value) {
+      const div = document.createElement('div');
+      div.textContent = value;
+      return div.innerHTML;
+    }
+
+    function createAvatar(role) {
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+
+      if (role === 'user') {
+        avatar.textContent = 'ME';
+        return avatar;
+      }
+
+      const logo = document.createElement('img');
+      logo.src = EST_LOGO;
+      logo.alt = 'EST FBS';
+      avatar.appendChild(logo);
+      return avatar;
+    }
+
+    function addMessage(role, text, sources = []) {
+      const message = document.createElement('article');
+      message.className = `message ${role}`;
+
+      const body = document.createElement('div');
+      body.className = 'message-body';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.innerHTML = escapeText(text);
+      body.appendChild(bubble);
+
+      if (role === 'bot' && sources.length) {
+        const sourceRow = document.createElement('div');
+        sourceRow.className = 'sources';
+        sources.forEach((source) => {
+          const chip = document.createElement('span');
+          chip.className = 'source-chip';
+          chip.textContent = source;
+          sourceRow.appendChild(chip);
+        });
+        body.appendChild(sourceRow);
+      }
+
+      message.append(createAvatar(role), body);
+      els.messages.appendChild(message);
+      scrollToBottom();
+      return message;
+    }
+
+    function addTypingIndicator() {
+      const node = addMessage('bot', '');
+      const bubble = node.querySelector('.bubble');
+      bubble.classList.add('typing');
+      bubble.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+      state.typingNode = node;
+    }
+
+    function removeTypingIndicator() {
+      if (state.typingNode) {
+        state.typingNode.remove();
+        state.typingNode = null;
+      }
+    }
+
+    function setWaiting(isWaiting) {
+      state.waiting = isWaiting;
+      updateSendState();
+    }
+
+    function normalizeAskResponse(data) {
+      return {
+        answer: data.answer || data.reponse || data.response || 'Aucune réponse n a été retournée.',
+        sources: Array.isArray(data.sources) ? data.sources : [],
+      };
+    }
+
+    async function postQuestion(question) {
+      const response = await fetch(endpoint('/ask'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+
+      if (response.ok) {
+        return normalizeAskResponse(await response.json());
+      }
+
+      if (response.status === 400 || response.status === 422) {
+        const compatResponse = await fetch(endpoint('/ask'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: question, history: state.history.slice(-10) }),
+        });
+
+        if (compatResponse.ok) {
+          return normalizeAskResponse(await compatResponse.json());
+        }
+      }
+
+      throw new Error(`Request failed with HTTP ${response.status}`);
+    }
+
+    async function sendQuestion(rawQuestion) {
+      const question = rawQuestion.trim();
+      if (!question || state.waiting) return;
+
+      hideWelcome();
+      addMessage('user', question);
+      els.input.value = '';
+      autoResizeInput();
+      setWaiting(true);
+      addTypingIndicator();
+
+      try {
+        const result = await postQuestion(question);
+        removeTypingIndicator();
+        addMessage('bot', result.answer, result.sources);
+        state.history.push({ user: question, bot: result.answer });
+        state.history = state.history.slice(-10);
+      } catch (error) {
+        removeTypingIndicator();
+        addMessage('bot', 'Impossible de joindre l API EST FBS pour le moment. Vérifiez que le serveur est lancé puis réessayez.');
+        console.error(error);
+      } finally {
+        setWaiting(false);
+        els.input.focus();
+      }
+    }
+
+    function quickAsk(text) {
+      els.input.value = text;
+      autoResizeInput();
+      updateSendState();
+      sendQuestion(text);
+    }
+
+    async function loadHealth() {
+      els.apiInfo.textContent = API || 'serveur local';
+
+      try {
+        const response = await fetch(endpoint('/health'));
+        if (!response.ok) throw new Error(`Health failed with HTTP ${response.status}`);
+
+        const data = await response.json();
+        setOnline(true);
+        els.chunkInfo.textContent = data.chunk_count ?? data.chunks ?? data.total_chunks ?? '--';
+        els.modelInfo.textContent = data.model || data.api_model || data.status || 'RAG';
+      } catch (error) {
+        setOnline(false);
+        els.chunkInfo.textContent = '--';
+        console.warn(error);
+      }
+    }
+
+    window.quickAsk = quickAsk;
+
+    els.form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      sendQuestion(els.input.value);
+    });
+
+    els.input.addEventListener('input', () => {
+      autoResizeInput();
+      updateSendState();
+    });
+
+    els.input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        if (!state.waiting && els.input.value.trim()) {
+          sendQuestion(els.input.value);
+        }
+      }
+    });
+
+    document.querySelectorAll('[data-ask]').forEach((button) => {
+      button.addEventListener('click', () => quickAsk(button.dataset.ask));
+    });
+
+    autoResizeInput();
+    updateSendState();
+    loadHealth();
+  </script>
+</body>
+</html>

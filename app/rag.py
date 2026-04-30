@@ -29,7 +29,7 @@ class RAGResponse:
 
 
 class RAGService:
-    """Reusable RAG pipeline shared by the FastAPI app and CLI chatbot."""
+    """Reusable RAG pipeline used by the FastAPI app."""
 
     def __init__(
         self,

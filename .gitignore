@@ -1,13 +1,6 @@
-# Environnement virtuel
 venv/
 .venv/
 __pycache__/
-*.pyc
-
-# Secrets et config
+*.py[cod]
 .env
-
-# DB et artefacts lourds
 *.db
-models/
-notebooks/

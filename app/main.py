@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -12,6 +13,7 @@ import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 SRC_DIR = Path(__file__).resolve().parents[1]
@@ -57,10 +59,59 @@ app.add_middleware(
 
 
 class Question(BaseModel):
-    """Incoming question payload from Chainlit."""
+    """Incoming question payload from the frontend or development clients."""
 
-    text: str = Field(..., min_length=1)
+    question: str | None = Field(default=None, min_length=1)
+    text: str | None = Field(default=None, min_length=1)
     history: list[dict[str, Any]] = Field(default_factory=list)
+
+    def normalized_text(self) -> str:
+        """Return the supported question field with surrounding whitespace removed."""
+        value = (self.question or self.text or "").strip()
+        if not value:
+            raise ValueError("Question cannot be empty.")
+        return value
+
+
+def _chunk_count() -> int | None:
+    """Best-effort Pinecone vector count for the health response."""
+    if rag_service is None:
+        return None
+
+    vector_store_index = getattr(rag_service.vector_store, "index", None)
+    if vector_store_index is None:
+        vector_store_index = getattr(rag_service.vector_store, "_index", None)
+    if vector_store_index is None or not hasattr(vector_store_index, "describe_index_stats"):
+        return None
+
+    try:
+        stats = vector_store_index.describe_index_stats()
+    except Exception:
+        return None
+
+    if isinstance(stats, dict):
+        total = stats.get("total_vector_count")
+    else:
+        total = getattr(stats, "total_vector_count", None)
+    return int(total) if total is not None else None
+
+
+@app.get("/", include_in_schema=False)
+def frontend() -> FileResponse:
+    """Serve the single-file chatbot frontend."""
+    return FileResponse(SRC_DIR / "index.html")
+
+
+@app.get("/health")
+def health() -> dict[str, Any]:
+    """Report basic API readiness for the frontend status indicator."""
+    ready = rag_service is not None
+    return {
+        "status": "online" if ready else "offline",
+        "ok": ready,
+        "model": os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+        "chunk_count": _chunk_count(),
+    }
 
 
 @app.post("/ask")
@@ -70,9 +121,10 @@ def poser_question(q: Question) -> dict[str, Any]:
         raise HTTPException(status_code=503, detail="RAG service is not initialized.")
 
     try:
-        result = rag_service.ask(q.text, q.history)
-        log_interaction(q.text, result.answer, result.sources)
-        return {"reponse": result.answer, "sources": result.sources}
+        question = q.normalized_text()
+        result = rag_service.ask(question, q.history)
+        log_interaction(question, result.answer, result.sources)
+        return {"answer": result.answer, "reponse": result.answer, "sources": result.sources}
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
